@@ -198,7 +198,7 @@ open class M13Checkbox: UIControl {
         }
         
         /// The manager for the specific animation type.
-        fileprivate var manager: M13CheckboxController {
+        public var manager: M13CheckboxController {
             switch self {
             case .stroke:
                 return M13CheckboxStrokeController()
