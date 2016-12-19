@@ -19,6 +19,8 @@ public class M13CheckboxController {
     // MARK: - Properties
     //----------------------------
     
+    open var stateRawValue: String?
+    
     /// The path presets for the manager.
     var pathGenerator: M13CheckboxPathGenerator = M13CheckboxCheckPathGenerator()
     
@@ -26,7 +28,11 @@ public class M13CheckboxController {
     var animationGenerator: M13CheckboxAnimationGenerator = M13CheckboxAnimationGenerator()
     
     /// The current state of the checkbox.
-    var state: M13Checkbox.CheckState = DefaultValues.checkState
+    var state: M13Checkbox.CheckState = DefaultValues.checkState {
+        didSet {
+            self.stateRawValue = self.state.rawValue
+        }
+    }
     
     /// The current tint color.
     /// - Note: Subclasses should override didSet to update the layers when this value changes.
