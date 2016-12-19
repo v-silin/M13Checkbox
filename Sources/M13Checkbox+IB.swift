@@ -66,7 +66,7 @@ public extension M13Checkbox {
             if let temp = CheckState(rawValue: newValue) {
                 checkState = temp
             } else {
-                checkState = DefaultValues.checkState
+                checkState = .Unchecked
             }
         }
     }

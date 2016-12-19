@@ -30,11 +30,11 @@ open class M13Checkbox: UIControl {
     */
     public enum CheckState: String {
         /// No check is shown.
-        case unchecked = "Unchecked"
+        case Unchecked = "Unchecked"
         /// A checkmark is shown.
-        case checked = "Checked"
+        case Checked = "Checked"
         /// A dash is shown.
-        case mixed = "Mixed"
+        case Mixed = "Mixed"
     }
     
     /**
@@ -45,9 +45,9 @@ open class M13Checkbox: UIControl {
      */
     public enum BoxType: String {
         /// The box is a circle.
-        case circle = "Circle"
+        case Circle = "Circle"
         /// The box is square with optional rounded corners.
-        case square = "Square"
+        case Square = "Square"
     }
     
     /**
@@ -58,13 +58,9 @@ open class M13Checkbox: UIControl {
      */
     public enum MarkType: String {
         /// The mark is a standard checkmark.
-        case checkmark = "Checkmark"
+        case Checkmark = "Checkmark"
         /// The mark is a radio style fill.
-        case radio = "Radio"
-        /// The mark is an add/remove icon set.
-        case addRemove = "AddRemove"
-        /// The mark is a disclosure indicator.
-        case disclosure = "Disclosure"
+        case Radio = "Radio"
     }
     
     /**
@@ -94,30 +90,56 @@ open class M13Checkbox: UIControl {
             switch rawValue {
             case "Stroke":
                 self = .stroke
+                break
+                
             case "Fill":
                 self = .fill
+                break
+                
             case "BounceStroke":
                 self = .bounce(.stroke)
+                break
+                
             case "BounceFill":
                 self = .bounce(.fill)
+                break
+                
             case "ExpandStroke":
                 self = .expand(.stroke)
+                break
+                
             case "ExpandFill":
                 self = .expand(.fill)
+                break
+                
             case "FlatStroke":
                 self = .flat(.stroke)
+                break
+                
             case "FlatFill":
                 self = .flat(.fill)
+                break
+                
             case "Spiral":
                 self = .spiral
+                break
+                
             case "FadeStroke":
                 self = .fade(.stroke)
+                break
+                
             case "FadeFill":
                 self = .fade(.fill)
+                break
+                
             case "DotStroke":
                 self = .dot(.stroke)
+                break
+            
             case "DotFill":
                 self = .dot(.fill)
+                break
+                
             default:
                 return nil
             }
@@ -133,63 +155,63 @@ open class M13Checkbox: UIControl {
                 return "Fill"
             case let .bounce(style):
                 switch style {
-                case .stroke:
+                case .Stroke:
                     return "BounceStroke"
-                case .fill:
+                case .Fill:
                     return "BounceFill"
                 }
             case let .expand(style):
                 switch style {
-                case .stroke:
+                case .Stroke:
                     return "ExpandStroke"
-                case .fill:
+                case .Fill:
                     return "ExpandFill"
                 }
             case let .flat(style):
                 switch style {
-                case .stroke:
+                case .Stroke:
                     return "FlatStroke"
-                case .fill:
+                case .Fill:
                     return "FlatFill"
                 }
             case .spiral:
                 return "Spiral"
             case let .fade(style):
                 switch style {
-                case .stroke:
+                case .Stroke:
                     return "FadeStroke"
-                case .fill:
+                case .Fill:
                     return "FadeFill"
                 }
             case let .dot(style):
                 switch style {
-                case .stroke:
+                case .Stroke:
                     return "DotStroke"
-                case .fill:
+                case .Fill:
                     return "DotFill"
                 }
             }
         }
         
         /// The manager for the specific animation type.
-        fileprivate var manager: M13CheckboxController {
+        fileprivate var manager: M13CheckboxManager {
             switch self {
             case .stroke:
-                return M13CheckboxStrokeController()
+                return M13CheckboxStrokeManager()
             case .fill:
-                return M13CheckboxFillController()
+                return M13CheckboxFillManager()
             case let .bounce(style):
-                return M13CheckboxBounceController(style: style)
+                return M13CheckboxBounceManager(style: style)
             case let .expand(style):
-                return M13CheckboxExpandController(style: style)
+                return M13CheckboxExpandManager(style: style)
             case let .flat(style):
-                return M13CheckboxFlatController(style: style)
+                return M13CheckboxFlatManager(style: style)
             case .spiral:
-                return M13CheckboxSpiralController()
+                return M13CheckboxSpiralManager()
             case let .fade(style):
-                return M13CheckboxFadeController(style: style)
+                return M13CheckboxFadeManager(style: style)
             case let .dot(style):
-                return M13CheckboxDotController(style: style)
+                return M13CheckboxDotManager(style: style)
             }
         }
         
@@ -204,9 +226,9 @@ open class M13Checkbox: UIControl {
      */
     public enum AnimationStyle: String {
         // The animation will focus on the stroke.
-        case stroke = "Stroke"
+        case Stroke = "Stroke"
         // The animation will focus on the fill.
-        case fill = "Fill"
+        case Fill = "Fill"
     }
     
     //----------------------------
@@ -215,7 +237,7 @@ open class M13Checkbox: UIControl {
     
     /// The manager that manages display and animations of the checkbox.
     /// The default animation is a stroke.
-    fileprivate var controller: M13CheckboxController = M13CheckboxStrokeController()
+    open var controller: M13CheckboxController = DefaultValues.controller
     
     //----------------------------
     // MARK: - Initalization
@@ -234,7 +256,7 @@ open class M13Checkbox: UIControl {
     /// The setup shared between initalizers.
     fileprivate func sharedSetup() {
         // Set up the inital state.
-        for aLayer in controller.layersToDisplay {
+        for aLayer in manager.layersToDisplay {
             layer.addSublayer(aLayer)
         }
         controller.tintColor = tintColor
@@ -264,11 +286,11 @@ open class M13Checkbox: UIControl {
      */
     open var value: Any? {
         switch checkState {
-        case .unchecked:
+        case .Unchecked:
             return uncheckedValue
-        case .checked:
+        case .Checked:
             return checkedValue
-        case .mixed:
+        case .Mixed:
             return mixedValue
         }
     }
@@ -280,7 +302,7 @@ open class M13Checkbox: UIControl {
     /// The current state of the checkbox.
     open var checkState: CheckState {
         get {
-            return controller.state
+            return manager.state
         }
         set {
             setCheckState(newValue, animated: false)
@@ -298,16 +320,9 @@ open class M13Checkbox: UIControl {
         }
         
         if animated {
-            if enableMorphing {
-                controller.animate(checkState, toState: newState)
-            } else {
-                controller.animate(checkState, toState: nil, completion: { [weak self] in
-                    self?.controller.resetLayersForState(newState)
-                    self?.controller.animate(nil, toState: newState)
-                    })
-            }
+            manager.animate(checkState, toState: newState)
         } else {
-            controller.resetLayersForState(newState)
+            manager.resetLayersForState(newState)
         }
     }
     
@@ -318,14 +333,14 @@ open class M13Checkbox: UIControl {
      */
     open func toggleCheckState(_ animated: Bool = false) {
         switch checkState {
-        case .checked:
-            setCheckState(.unchecked, animated: animated)
+        case .Checked:
+            setCheckState(.Unchecked, animated: animated)
             break
-        case .unchecked:
-            setCheckState(.checked, animated: animated)
+        case .Unchecked:
+            setCheckState(.Checked, animated: animated)
             break
-        case .mixed:
-            setCheckState(.unchecked, animated: animated)
+        case .Mixed:
+            setCheckState(.Unchecked, animated: animated)
             break
         }
     }
@@ -337,10 +352,10 @@ open class M13Checkbox: UIControl {
     /// The duration of the animation that occurs when the checkbox switches states. The default is 0.3 seconds.
     @IBInspectable open var animationDuration: TimeInterval {
         get {
-            return controller.animationGenerator.animationDuration
+            return manager.animations.animationDuration
         }
         set {
-            controller.animationGenerator.animationDuration = newValue
+            manager.animations.animationDuration = newValue
         }
     }
     
@@ -363,11 +378,14 @@ open class M13Checkbox: UIControl {
             newManager.secondaryTintColor = secondaryTintColor
             newManager.secondaryCheckmarkTintColor = secondaryCheckmarkTintColor
             newManager.hideBox = hideBox
-            newManager.pathGenerator = controller.pathGenerator
-            newManager.animationGenerator.animationDuration = controller.animationGenerator.animationDuration
-            newManager.state = controller.state
-            newManager.enableMorphing = controller.enableMorphing
-            newManager.setMarkType(type: controller.markType, animated: false)
+            
+            newManager.paths.boxLineWidth = manager.paths.boxLineWidth
+            newManager.paths.boxType = manager.paths.boxType
+            newManager.paths.checkmarkLineWidth = manager.paths.checkmarkLineWidth
+            newManager.paths.cornerRadius = manager.paths.cornerRadius
+            newManager.paths.markType = manager.paths.markType
+            
+            newManager.animations.animationDuration = manager.animations.animationDuration
             
             // Set up the inital state.
             for aLayer in newManager.layersToDisplay {
@@ -376,18 +394,13 @@ open class M13Checkbox: UIControl {
             
             // Layout and reset
             newManager.resetLayersForState(checkState)
-            controller = newManager
-
-        }
-    }
-    
-    /// Whether or not to enable morphing between states.
-    @IBInspectable open var enableMorphing: Bool {
-        get {
-            return controller.enableMorphing
-        }
-        set {
-            controller.enableMorphing = newValue
+            manager = newManager
+            
+            // TODO: - Add support for missing animations.
+            if markType == .Radio && stateChangeAnimation == .spiral {
+                stateChangeAnimation = .stroke
+                print("WARNING: The spiral animation is currently unsupported with a radio mark.")
+            }
         }
     }
     
@@ -414,68 +427,71 @@ open class M13Checkbox: UIControl {
     /// The color of the checkbox's tint color when not in the unselected state. The tint color is is the main color used when not in the unselected state.
     @IBInspectable open var secondaryTintColor: UIColor? {
         get {
-            return controller.secondaryTintColor
+            return manager.secondaryTintColor
         }
         set {
-            controller.secondaryTintColor = newValue
+            manager.secondaryTintColor = newValue
         }
     }
     
     /// The color of the checkmark when it is displayed against a filled background.
     @IBInspectable open var secondaryCheckmarkTintColor: UIColor? {
         get {
-            return controller.secondaryCheckmarkTintColor
+            return manager.secondaryCheckmarkTintColor
         }
         set {
-            controller.secondaryCheckmarkTintColor = newValue
+            manager.secondaryCheckmarkTintColor = newValue
         }
     }
     
     /// The stroke width of the checkmark.
     @IBInspectable open var checkmarkLineWidth: CGFloat {
         get {
-            return controller.pathGenerator.checkmarkLineWidth
+            return manager.paths.checkmarkLineWidth
         }
         set {
-            controller.pathGenerator.checkmarkLineWidth = newValue
-            controller.resetLayersForState(checkState)
+            manager.paths.checkmarkLineWidth = newValue
+            manager.resetLayersForState(checkState)
         }
     }
     
     /// The type of mark to display.
-    open var markType: MarkType {
+    @IBInspectable open var markType: MarkType {
         get {
-            return controller.markType
+            return manager.paths.markType
         }
         set {
-            controller.markType = newValue
+            manager.paths.markType = newValue
+            
+            // TODO: - Add support for missing animations.
+            if markType == .Radio && stateChangeAnimation == .spiral {
+                manager.paths.markType = .Checkmark
+                print("WARNING: The spiral animation is currently unsupported with a radio mark.")
+            }
+            
+            manager.resetLayersForState(checkState)
             setNeedsLayout()
         }
-    }
-    
-    /// Set the mark type with the option of animating the change.
-    open func setMarkType(markType: MarkType, animated: Bool) {
-        controller.setMarkType(type: markType, animated: animated)
     }
     
     /// The stroke width of the box.
     @IBInspectable open var boxLineWidth: CGFloat {
         get {
-            return controller.pathGenerator.boxLineWidth
+            return manager.paths.boxLineWidth
         }
         set {
-            controller.pathGenerator.boxLineWidth = newValue
-            controller.resetLayersForState(checkState)
+            manager.paths.boxLineWidth = newValue
+            manager.resetLayersForState(checkState)
         }
     }
     
     /// The corner radius of the box if the box type is square.
     @IBInspectable open var cornerRadius: CGFloat {
         get {
-            return controller.pathGenerator.cornerRadius
+            return manager.paths.cornerRadius
         }
         set {
-            controller.pathGenerator.cornerRadius = newValue
+            manager.paths.cornerRadius = newValue
             setNeedsLayout()
         }
     }
@@ -483,10 +499,10 @@ open class M13Checkbox: UIControl {
     /// The shape of the checkbox.
     open var boxType: BoxType {
         get {
-            return controller.pathGenerator.boxType
+            return manager.paths.boxType
         }
         set {
-            controller.pathGenerator.boxType = newValue
+            manager.paths.boxType = newValue
             setNeedsLayout()
         }
     }
@@ -494,16 +510,16 @@ open class M13Checkbox: UIControl {
     /// Wether or not to hide the checkbox.
     @IBInspectable open var hideBox: Bool {
         get {
-            return controller.hideBox
+            return manager.hideBox
         }
         set {
-            controller.hideBox = newValue
+            manager.hideBox = newValue
         }
     }
     
     open override func tintColorDidChange() {
         super.tintColorDidChange()
-        controller.tintColor = tintColor
+        manager.tintColor = tintColor
     }
     
     //----------------------------
@@ -513,8 +529,8 @@ open class M13Checkbox: UIControl {
     open override func layoutSubviews() {
         super.layoutSubviews()
         // Update size
-        controller.pathGenerator.size = min(frame.size.width, frame.size.height)
+        manager.paths.size = min(frame.size.width, frame.size.height)
         // Layout
-        controller.layoutLayers()
+        manager.layoutLayers()
     }
 }
