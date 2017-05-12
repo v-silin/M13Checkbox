@@ -13,7 +13,7 @@
 
 import UIKit
 
-public class M13CheckboxController {
+public class M13CheckboxController : NSObject {
     
     //----------------------------
     // MARK: - Properties
