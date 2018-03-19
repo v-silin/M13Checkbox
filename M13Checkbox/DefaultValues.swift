@@ -20,6 +20,11 @@ struct DefaultValues {
     static let markType: M13Checkbox.MarkType = .checkmark
     static let boxType: M13Checkbox.BoxType = .circle
     static let checkState: M13Checkbox.CheckState = .unchecked
-    static let controller: M13CheckboxController = M13CheckboxStrokeController()
+    static var controller: M13CheckboxController {
+        get {
+            return M13CheckboxStrokeController()
+        }
+    }
     
 }
+
